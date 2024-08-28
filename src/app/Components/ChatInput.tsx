@@ -1,6 +1,7 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
+import { nanoid } from "nanoid";
 import React, { FC, HTMLAttributes, useState } from "react";
 import ReactTextareaAutosize from "react-textarea-autosize";
 
@@ -9,8 +10,34 @@ interface ChatInputProps extends HTMLAttributes<HTMLDivElement> {}
 const ChatInput: FC<ChatInputProps> = ({ className, ...props }) => {
   const [input, setInput] = useState<string>("");
 
-  const {} = useMutation({
-    mutationFn: async () => {},
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+
+      const message = {
+        id: nanoid(),
+        isUserInput: true,
+        text: input,
+      };
+
+      // sendMessage(message);
+    }
+  };
+
+  const { mutate: sendMessage, isPending } = useMutation({
+    mutationFn: async (message) => {
+      const response = await fetch("/api/message", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: "hello" }),
+      });
+      return response.body;
+    },
+    onSuccess: () => {
+      console.log("success");
+    },
   });
 
   return (
@@ -18,6 +45,7 @@ const ChatInput: FC<ChatInputProps> = ({ className, ...props }) => {
       <div className="relative mt-4 flex-1 overflow-hidden rounded-lg border-none outline-none">
         <ReactTextareaAutosize
           rows={2}
+          onKeyDown={handleKeyDown}
           maxRows={4}
           value={input}
           onChange={(e) => setInput(e.target.value)}
