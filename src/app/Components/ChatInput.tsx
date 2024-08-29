@@ -1,5 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
+import { Message } from "@/lib/validators/message";
 import { useMutation } from "@tanstack/react-query";
 import { nanoid } from "nanoid";
 import React, { FC, HTMLAttributes, useState } from "react";
@@ -14,18 +15,18 @@ const ChatInput: FC<ChatInputProps> = ({ className, ...props }) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
 
-      const message = {
+      const message: Message = {
         id: nanoid(),
-        isUserInput: true,
+        isUserMessage: true,
         text: input,
       };
 
-      // sendMessage(message);
+      sendMessage(message);
     }
   };
 
   const { mutate: sendMessage, isPending } = useMutation({
-    mutationFn: async (message) => {
+    mutationFn: async (message: Message) => {
       const response = await fetch("/api/message", {
         method: "POST",
         headers: {
